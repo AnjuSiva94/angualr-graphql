@@ -13,7 +13,8 @@ const resolvers = {
   },
   Mutation: {
     createUser: (_, { name, email }) => {
-      const newUser = { id: (users.length + 1).toString(), name, email, active: true };
+      const maxId = Math.max(0, ...users.map(u => parseInt(u.id, 10)));
+      const newUser = { id: (maxId + 1).toString(), name, email, active: true };
       users.push(newUser);
       return newUser;
     },
