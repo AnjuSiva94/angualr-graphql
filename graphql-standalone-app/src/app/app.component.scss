@@ -1,0 +1,169 @@
+@mixin app__grid-box($radius: 8px) {
+    border-radius: $radius;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    box-sizing: border-box;
+}
+
+@mixin app__grid {
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #90a4ae;
+    @include app__grid-box(8px)
+}
+
+:host {
+    @include app__grid;
+    display: block;
+    margin: 10px;
+    min-height: 100vh;
+    font-family: Arial, sans-serif;
+    background:
+        radial-gradient(circle at 30% 100%,
+            rgb(51, 245, 180) 0%,
+            rgba(255, 255, 200, 0) 20%),
+        radial-gradient(circle at 30% 100%,
+            rgb(245, 16, 234) 0%,
+            rgba(250, 219, 234, 0) 35%),
+        radial-gradient(circle at 30% 100%,
+            rgba(236, 9, 206, 0.3) 0%,
+            rgba(250, 219, 234, 0) 50%),
+        linear-gradient(200deg,
+            rgb(12, 238, 208) 0%,
+            rgb(181, 145, 248) 50%,
+            rgb(214, 6, 134) 100%);
+
+
+}
+
+.app {
+    &__header {
+        text-align: center;
+        font-size: 28px;
+        font-weight: bold;
+        padding: 16px;
+        background-color: #0288d1;
+        color: white;
+        border-radius: 8px;
+        margin-bottom: 12px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    &__footer {
+        text-align: center;
+        font-size: 14px;
+        padding: 10px;
+        background-color: #00458f;
+        color: white;
+        border-radius: 8px;
+        margin-top: 16px;
+        box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    &__heading {
+        text-align: center;
+        font-size: 18px;
+        font-weight: bold;
+    }
+
+    &__user-details {
+        flex: 1 1 auto;
+        overflow-wrap: break-word;
+        font-weight: 500;
+        max-width: 60%;
+    }
+
+    &__user-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-shrink: 0;
+    }
+
+    &__button-group {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    &__user-list-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+        width: 100%;
+    }
+
+    &__user-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        width: 100%;
+        gap: 1rem;
+    }
+
+    &__user-text {
+        flex: 1 1 auto;
+        word-wrap: break-word;
+    }
+
+    &__user-actions {
+        display: flex;
+        gap: 0.5rem;
+        flex-shrink: 0;
+        align-items: center;
+    }
+
+    &__user-stats {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        margin: 0.5rem 0 1rem;
+        font-size: 16px;
+
+        .active {
+            color: green;
+            font-weight: 600;
+        }
+
+        .inactive {
+            color: red;
+            font-weight: 600;
+        }
+    }
+
+    &__deactive-btn {
+        justify-content: end;
+        margin: 10px;
+    }
+
+
+}
+
+.form-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+    padding: 0 10px;
+}
+
+.input {
+    flex: 1 1 200px;
+}
+
+.button-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+mat-form-field {
+    flex: 1 1 250px;
+    min-width: 250px;
+}
+
+mat-card {
+    margin-bottom: 20px;
+}

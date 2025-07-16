@@ -1,0 +1,82 @@
+<div class="app">
+  <header class="app__header">
+    <span>User management</span>
+  </header>
+  <main class="app__main">
+    <mat-card>
+      <h1 class="app__heading">👤 Users {{users().length}}</h1>
+      <div class="app__user-stats">
+        <span class="active">✅ Active: {{ activeUsers() }}</span>
+        <span class="inactive">❌ Inactive: {{ inactiveUsers() }}</span>
+      </div>
+      <div class="form-row app__deactive-btn">
+        <button mat-raised-button color="warn" (click)="deactivateAll()">Deactivate All Users</button>
+      </div>
+      <form (ngSubmit)="search()" class="form-row">
+        <mat-radio-group [value]="searchMode()" (change)="searchMode.set($any($event.value))" name="searchMode"
+          class="search-options">
+          <mat-radio-button value="name">Search by Name</mat-radio-button>
+          <mat-radio-button value="domain">Search by Domain</mat-radio-button>
+        </mat-radio-group>
+
+        <mat-form-field appearance="fill">
+          <input matInput [value]="searchKey()" (input)="searchKey.set($any($event.target).value)">
+        </mat-form-field>
+        <button mat-raised-button color="primary" type="submit">Search</button>
+
+      </form>
+
+      <mat-list *ngIf="users().length > 0">
+        <mat-list-item *ngFor="let user of displayedUsers()" class="app__user-list-item">
+          <div class="app__user-content">
+            <div class="app__user-text">
+              <span mat-line>{{ user.name }} ({{ user.email }})</span>
+            </div>
+
+            <div class="app__user-actions">
+              <button mat-icon-button color="accent" (click)="getUser(user.id, 'Update')">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button color="warn" (click)="getUser(user.id, 'Delete')">
+                <mat-icon>delete</mat-icon>
+              </button>
+              <mat-icon [color]="user.active ? 'primary' : 'warn'">
+                {{ user.active ? 'check_circle' : 'cancel' }}
+              </mat-icon>
+              <button mat-stroked-button color="accent" (click)="toggleStatus(user.id)"> {{ user.active ? 'Deactivate' :
+                'Activate' }}</button>
+            </div>
+          </div>
+        </mat-list-item>
+      </mat-list>
+
+      <p *ngIf="users().length === 0">Loading users...</p>
+    </mat-card>
+    <br />
+    <mat-card>
+      <h2 class="app__heading">{{action()}} User</h2>
+      <form (ngSubmit)="takeAction()" class="form-row">
+        <button *ngIf="id()" mat-stroked-button disabled>{{id()}}</button>
+        <mat-form-field appearance="fill">
+          <mat-label>Name</mat-label>
+          <input matInput [value]="name()" (input)="name.set($any($event.target).value)" placeholder="Name" required />
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Email</mat-label>
+          <input matInput [value]="email()" (input)="email.set($any($event.target).value)" placeholder="Email"
+            required />
+        </mat-form-field>
+
+
+        <button mat-raised-button color="primary" type="submit">{{action()}} User</button>
+        <button mat-raised-button color="secondary" type="button" (click)="resetUser()">Cancel</button>
+
+      </form>
+    </mat-card>
+    <br />
+
+  </main>
+  <footer class="app__footer">
+    <span>2015 user management</span>
+  </footer>
+</div>

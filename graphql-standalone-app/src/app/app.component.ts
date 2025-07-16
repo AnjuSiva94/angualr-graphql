@@ -1,0 +1,172 @@
+import { Component, computed, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Apollo } from 'apollo-angular';
+import { signal } from '@angular/core';
+import { UserService } from './services/user.service';
+import { FormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatListModule } from '@angular/material/list';
+import { MatIconModule } from '@angular/material/icon';
+import { MatRadioModule } from '@angular/material/radio';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { User } from './interfaces/user.interface'
+
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  imports: [CommonModule,
+    FormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatCardModule,
+    MatListModule,
+    MatIconModule,
+    MatRadioModule,
+    MatSnackBarModule
+  ],
+  templateUrl: 'app.component.html',
+  styleUrl: 'app.component.scss'
+})
+
+
+export class AppComponent {
+
+
+  private apollo = inject(Apollo);
+  users = signal<User[]>([]);
+  name = signal<string>('');
+  email = signal<string>('');
+  id = signal<string>('');
+  action = signal<string>('Add');
+  searchMode = signal<'name' | 'domain'>('name');
+  searchKey = signal<string>('');
+  searchUsers = signal<User[]>([]);
+  searchflag = signal<boolean>(false);
+
+  constructor(private userService: UserService, private snackBar: MatSnackBar) { }
+
+  ngOnInit() {
+    this.fetchUsers();
+
+  }
+  fetchUsers() {
+    debugger;
+    this.userService.getAllUsers({ fetchPolicy: 'network-only' }).subscribe((result: any) => {
+      this.users.set(result.data.users);
+    });
+  }
+
+  takeAction() {
+    switch (this.action()) {
+      case 'Add': return this.addUser();
+      case 'Update': return this.updateUsers();
+      case 'Delete': return this.deleteUser();
+    }
+
+  }
+  addUser() {
+    this.userService.createUser(this.name(), this.email())
+      .subscribe(result => {
+        console.log(result)
+        this.fetchUsers();
+        this.snackBar.open('User added successfully ✅', 'Close', { duration: 3000 });
+        this.resetUser() // Refresh list after adding
+      });
+
+  }
+  updateUsers() {
+    this.userService.updateUser(this.id(), this.name(), this.email())
+      .subscribe(result => {
+        console.log('User updated:', result);
+        this.fetchUsers();
+        this.snackBar.open('User updated successfully ✏️', 'Close', { duration: 3000 });
+        this.resetUser()
+      });
+
+  }
+  deleteUser() {
+    this.userService.deleteUser(this.id())
+      .subscribe(result => {
+        console.log('User deleted:', result);
+        this.fetchUsers();
+        this.snackBar.open('User deleted successfully 🗑️', 'Close', { duration: 3000 });
+        this.resetUser() // Optional refresh
+      });
+
+  }
+  getUser(id?: null | string, action?: null | string) {
+    id == null ? this.id() : id
+    this.action.set(action?.toString() ?? '')
+    this.userService.getUser(id?.toString() ?? '').subscribe((result: any) => {
+      console.log(result)
+      let user = result.data.user;
+      this.selectedUser(user)
+    })
+  }
+
+  selectedUser(user: User) {
+    this.name.set(user.name)
+    this.email.set(user.email)
+    this.id.set(user.id)
+  }
+
+  resetUser() {
+    this.action.set('Add')
+    this.name.set('')
+    this.email.set('')
+    this.id.set('')
+  }
+  search() {
+    this.searchflag.set(true);
+    const key = this.searchKey().trim();
+    if (!key) {
+      this.searchUsers.set([]);
+      return;
+    }
+    if (this.searchMode() === "name") {
+      this.userService.searchUserByName(key).subscribe((result: any) => {
+        const data = result.data.searchUser;
+        if (!data) {
+          this.searchUsers.set([]);
+        } else {
+          this.searchUsers.set(Array.isArray(data) ? data : [data]);
+        }
+      });
+    } else {
+      this.userService.searchUserByDomain(key).subscribe((result: any) => {
+        const data = result.data.searchUsersByDomain;
+        if (!data || data.length === 0) {
+          this.searchUsers.set([]);
+        } else {
+          this.searchUsers.set(data); // Already an array
+        }
+      });
+    }
+  }
+
+
+  toggleStatus(id: string) {
+    this.userService.toggleUserStatus(id).subscribe(result => {
+      console.log('Status toggled', result);
+      this.fetchUsers();
+    });
+  }
+  deactivateAll() {
+    this.userService.deactivateAllUsers().subscribe(result => {
+      console.log('Deactivated all users:', result.data?.deactivateAllUsers);
+      this.snackBar.open('All users deactivated', 'Close', { duration: 3000 });
+
+    });
+  }
+  displayedUsers = computed(() =>
+    this.searchKey().trim() ? this.searchUsers() : this.users()
+  );
+
+  activeUsers = computed(() => this.users().filter(u => u.active).length);
+  inactiveUsers = computed(() => this.users().filter(u => !u.active).length);
+
+}
