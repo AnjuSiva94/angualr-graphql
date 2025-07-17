@@ -26,8 +26,8 @@
 
       </form>
 
-      <mat-list *ngIf="users().length > 0">
-        <mat-list-item *ngFor="let user of displayedUsers()" class="app__user-list-item">
+      <mat-list *ngIf="users().length > 0" >
+        <mat-list-item data-testid="user-item" *ngFor="let user of displayedUsers()" class="app__user-list-item">
           <div class="app__user-content">
             <div class="app__user-text">
               <span mat-line>{{ user.name }} ({{ user.email }})</span>

@@ -57,6 +57,7 @@ export class AppComponent {
     debugger;
     this.userService.getAllUsers({ fetchPolicy: 'network-only' }).subscribe((result: any) => {
       this.users.set(result.data.users);
+      console.log(result);
     });
   }
 
@@ -158,8 +159,8 @@ export class AppComponent {
   deactivateAll() {
     this.userService.deactivateAllUsers().subscribe(result => {
       console.log('Deactivated all users:', result.data?.deactivateAllUsers);
+      this.fetchUsers();
       this.snackBar.open('All users deactivated', 'Close', { duration: 3000 });
-
     });
   }
   displayedUsers = computed(() =>
