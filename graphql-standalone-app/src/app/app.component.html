@@ -26,7 +26,11 @@
 
       </form>
 
-      <mat-list *ngIf="users().length > 0" >
+
+      <div class="app__search-stats" *ngIf="searchKey().trim().length>0 && displayedUsers().length>0">
+        <span class="active">Search By {{searchMode()}}: {{searchKey()}}</span>
+      </div>
+      <mat-list *ngIf="displayedUsers().length > 0;"> 
         <mat-list-item data-testid="user-item" *ngFor="let user of displayedUsers()" class="app__user-list-item">
           <div class="app__user-content">
             <div class="app__user-text">
@@ -59,17 +63,19 @@
         <button *ngIf="id()" mat-stroked-button disabled>{{id()}}</button>
         <mat-form-field appearance="fill">
           <mat-label>Name</mat-label>
-          <input matInput [value]="name()" (input)="name.set($any($event.target).value)" placeholder="Name" required />
+          <input data-testid="nameInput" matInput [value]="name()" (input)="name.set($any($event.target).value)"
+            placeholder="Name" required />
         </mat-form-field>
         <mat-form-field appearance="fill">
           <mat-label>Email</mat-label>
-          <input matInput [value]="email()" (input)="email.set($any($event.target).value)" placeholder="Email"
-            required />
+          <input data-testid="emailInput" matInput [value]="email()" (input)="email.set($any($event.target).value)"
+            placeholder="Email" required />
         </mat-form-field>
 
 
         <button mat-raised-button color="primary" type="submit">{{action()}} User</button>
-        <button mat-raised-button color="secondary" type="button" (click)="resetUser()">Cancel</button>
+        <button mat-raised-button color="secondary" data-testid="cancel" type="button"
+          (click)="resetUser()">Cancel</button>
 
       </form>
     </mat-card>

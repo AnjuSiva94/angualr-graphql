@@ -115,7 +115,7 @@
         align-items: center;
     }
 
-    &__user-stats {
+    &__user-stats, &__search-stats {
         display: flex;
         justify-content: center;
         gap: 2rem;

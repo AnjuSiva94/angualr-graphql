@@ -13,6 +13,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { User } from './interfaces/user.interface'
+import { ToastService } from './services/toast.service';
 
 @Component({
   selector: 'app-root',
@@ -47,7 +48,7 @@ export class AppComponent {
   searchUsers = signal<User[]>([]);
   searchflag = signal<boolean>(false);
 
-  constructor(private userService: UserService, private snackBar: MatSnackBar) { }
+  constructor(private userService: UserService, private toastService: ToastService) { }
 
   ngOnInit() {
     this.fetchUsers();
@@ -57,7 +58,6 @@ export class AppComponent {
     debugger;
     this.userService.getAllUsers({ fetchPolicy: 'network-only' }).subscribe((result: any) => {
       this.users.set(result.data.users);
-      console.log(result);
     });
   }
 
@@ -67,24 +67,28 @@ export class AppComponent {
       case 'Update': return this.updateUsers();
       case 'Delete': return this.deleteUser();
     }
+    this.searchflag.set(false);
+    this.searchKey.set('');
 
   }
   addUser() {
     this.userService.createUser(this.name(), this.email())
       .subscribe(result => {
-        console.log(result)
         this.fetchUsers();
-        this.snackBar.open('User added successfully ✅', 'Close', { duration: 3000 });
-        this.resetUser() // Refresh list after adding
+
+        console.log("hi1");
+        this.toastService.success('User added successfully');
+
+        console.log("hi2");
+        this.resetUser()
       });
 
   }
   updateUsers() {
     this.userService.updateUser(this.id(), this.name(), this.email())
       .subscribe(result => {
-        console.log('User updated:', result);
         this.fetchUsers();
-        this.snackBar.open('User updated successfully ✏️', 'Close', { duration: 3000 });
+        this.toastService.success('User updated successfully');
         this.resetUser()
       });
 
@@ -92,10 +96,9 @@ export class AppComponent {
   deleteUser() {
     this.userService.deleteUser(this.id())
       .subscribe(result => {
-        console.log('User deleted:', result);
         this.fetchUsers();
-        this.snackBar.open('User deleted successfully 🗑️', 'Close', { duration: 3000 });
-        this.resetUser() // Optional refresh
+        this.toastService.success('User deleted successfully');
+        this.resetUser();
       });
 
   }
@@ -103,7 +106,6 @@ export class AppComponent {
     id == null ? this.id() : id
     this.action.set(action?.toString() ?? '')
     this.userService.getUser(id?.toString() ?? '').subscribe((result: any) => {
-      console.log(result)
       let user = result.data.user;
       this.selectedUser(user)
     })
@@ -116,18 +118,20 @@ export class AppComponent {
   }
 
   resetUser() {
-    this.action.set('Add')
-    this.name.set('')
-    this.email.set('')
-    this.id.set('')
+    this.action.set('Add');
+    this.name.set('');
+    this.email.set('');
+    this.id.set('');
+    this.searchflag.set(false);
   }
   search() {
-    this.searchflag.set(true);
     const key = this.searchKey().trim();
     if (!key) {
+      this.searchflag.set(false); // 👈 Add this line
       this.searchUsers.set([]);
       return;
     }
+    this.searchflag.set(true);
     if (this.searchMode() === "name") {
       this.userService.searchUserByName(key).subscribe((result: any) => {
         const data = result.data.searchUser;
@@ -143,7 +147,7 @@ export class AppComponent {
         if (!data || data.length === 0) {
           this.searchUsers.set([]);
         } else {
-          this.searchUsers.set(data); // Already an array
+          this.searchUsers.set(data);
         }
       });
     }
@@ -152,19 +156,17 @@ export class AppComponent {
 
   toggleStatus(id: string) {
     this.userService.toggleUserStatus(id).subscribe(result => {
-      console.log('Status toggled', result);
       this.fetchUsers();
     });
   }
   deactivateAll() {
     this.userService.deactivateAllUsers().subscribe(result => {
-      console.log('Deactivated all users:', result.data?.deactivateAllUsers);
       this.fetchUsers();
-      this.snackBar.open('All users deactivated', 'Close', { duration: 3000 });
+      this.toastService.success('All users deactivated');
     });
   }
   displayedUsers = computed(() =>
-    this.searchKey().trim() ? this.searchUsers() : this.users()
+    this.searchflag() ? this.searchUsers() : this.users()
   );
 
   activeUsers = computed(() => this.users().filter(u => u.active).length);
